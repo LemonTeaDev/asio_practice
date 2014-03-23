@@ -42,8 +42,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\boost\boost_1_54_0;$(IncludePath)</IncludePath>
-    <ReferencePath>C:\boost\boost_1_54_0\stage\lib;$(ReferencePath)</ReferencePath>
+    <IncludePath>C:\boost\boost_1_55_0;$(IncludePath)</IncludePath>
+    <ReferencePath>C:\boost\boost_1_55_0\stage\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
