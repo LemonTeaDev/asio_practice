@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+Microsoft Visual Studio Solution File, Format Version 13.00
+# Visual Studio 2013
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AsioTCPChattingServer", "AsioTCPChattingServer\AsioTCPChattingServer.vcxproj", "{1942BC24-2DDF-4A81-818C-C333BDB3C862}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AsioTCPChattingClient", "AsioTCPChattingClient\AsioTCPChattingClient.vcxproj", "{BCA248D2-B23F-40BA-B0DE-510F10FEE51B}"
