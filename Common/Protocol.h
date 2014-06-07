@@ -17,14 +17,7 @@ typedef std::shared_ptr<byte> PacketSPtr;
 struct PACKET_HEADER
 {
 	short nID;
-private:
 	short nSize;
-	
-public:
-	const size_t GetSize()
-	{
-
-	}
 };
 
 enum Packets
@@ -41,15 +34,10 @@ struct PKT_REQ_IN : public PACKET_HEADER
 	{
 		nID = REQ_IN;
 		nSize = sizeof(PKT_REQ_IN);
-		name.reserve(MAX_NAME_LEN);
+		memset(szName, 0, MAX_NAME_LEN);
 	}
 
-	const size_t GetSize()
-	{
-		return sizeof(PACKET_HEADER)+name.size();
-	}
-	
-	std::string name;
+	byte szName[MAX_NAME_LEN];
 };
 
 struct PKT_RES_IN : public PACKET_HEADER
@@ -70,9 +58,9 @@ struct PKT_REQ_CHAT : public PACKET_HEADER
 	{
 		nID = REQ_CHAT;
 		nSize = sizeof(PKT_REQ_CHAT);
-		message.reserve(MAX_MESSAGE_LEN);
+		memset(szMessage, 0, MAX_MESSAGE_LEN);
 	}
-	std::string message;
+	byte szMessage[MAX_MESSAGE_LEN];
 };
 
 struct PKT_NOTICE_CHAT : public PACKET_HEADER
@@ -81,15 +69,15 @@ struct PKT_NOTICE_CHAT : public PACKET_HEADER
 	{
 		nID = NOTICE_CHAT;
 		nSize = sizeof(PKT_NOTICE_CHAT);
-		name.reserve(MAX_NAME_LEN);
-		message.reserve(MAX_MESSAGE_LEN);
+		memset(szName, 0, MAX_NAME_LEN);
+		memset(szMessage, 0, MAX_MESSAGE_LEN);
 	}
 
-	std::string name;
-	std::string message;
+	byte szName[MAX_NAME_LEN];
+	byte szMessage[MAX_MESSAGE_LEN];
 };
 
-/*
+
 namespace boost
 {
 	namespace asio
@@ -101,4 +89,3 @@ namespace boost
 		}
 	}
 }
-*/

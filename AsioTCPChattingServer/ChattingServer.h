@@ -19,13 +19,13 @@ public:
 	void CloseSession(const int nSessionID);
 	void ProcessPacket(
 		const int nSessionID, 
-		std::vector<byte>::const_iterator pData);
+		const byte* pData);
 
 private:
 	typedef std::shared_ptr<Session> SessionSPtr;
 	bool PostAccept();
 	void handle_accept(
-		SessionSPtr pSession, 
+		Session* pSession, 
 		const boost::system::error_code& error);
 
 private:
@@ -33,6 +33,6 @@ private:
 	bool m_bIsAccepting;
 	boost::asio::ip::tcp::acceptor m_acceptor;
 
-	std::vector<SessionSPtr> m_SessionList;
+	std::vector<Session*> m_SessionList;
 	std::deque<int> m_SessionQueue;
 };

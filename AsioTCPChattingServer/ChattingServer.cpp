@@ -8,6 +8,7 @@
 #include <vector>
 #include <locale>
 #include <codecvt>
+#include <functional>
 
 #include "ServerSession.h"
 #include "../Common/Protocol.h"
@@ -28,6 +29,8 @@ ChatServer::~ChatServer()
 		{
 			m_SessionList[i]->Socket().close();
 		}
+
+		delete m_SessionList[i];
 	}
 }
 
@@ -35,7 +38,7 @@ void ChatServer::Init(const int nMaxSessionCount)
 {
 	for (int i=0; i < nMaxSessionCount; ++i)
 	{
-		SessionSPtr pSession(new Session(i, m_acceptor.get_io_service(), this));
+		Session* pSession = new Session(i, m_acceptor.get_io_service(), this);
 		m_SessionList.push_back(pSession);
 		m_SessionQueue.push_back(i);
 	}
@@ -50,6 +53,7 @@ void ChatServer::Start()
 void ChatServer::CloseSession(const int nSessionID)
 {
 	std::cout << "클라이언트 접속 종료: 세션 ID: " << nSessionID << std::endl;
+	m_SessionList[nSessionID]->Socket().close();
 	m_SessionQueue.push_back(nSessionID);
 	if (m_bIsAccepting == false)
 	{
@@ -59,55 +63,50 @@ void ChatServer::CloseSession(const int nSessionID)
 
 void ChatServer::ProcessPacket(
 	const int nSessionID, 
-	std::vector<byte>::const_iterator itrData)
+	const byte* pData)
 {
-	auto pHeader = reinterpret_cast<const PACKET_HEADER*>(&*itrData);
+	PACKET_HEADER* pheader = (PACKET_HEADER*)pData;
 
-	switch (pHeader->nID)
+	switch (pheader->nID)
 	{
-	case REQ_IN:
+		case REQ_IN:
 		{
-			auto pPacket = reinterpret_cast<const PKT_REQ_IN*>(&*itrData);
-			m_SessionList[nSessionID]->SetName(pPacket->name);
+			PKT_REQ_IN* pPacket = (PKT_REQ_IN*)pData;
+			m_SessionList[nSessionID]->SetName(pPacket->szName);
 
-			std::wcout 
-				<< "클라이언트 로그인 성공 Name: "
-				<< m_SessionList[nSessionID]->GetName()
-				<< std::endl;
+			std::cout << "클라이언트 로그인 성공 Name: " << m_SessionList[nSessionID]->GetName() << std::endl;
 
-			PKT_RES_IN* pResIn = new PKT_RES_IN;
-			pResIn->Init();
-			pResIn->bIsSuccess = true;
+			PKT_RES_IN SendPkt;
+			SendPkt.Init();
+			SendPkt.bIsSuccess = true;
 
-			m_SessionList[nSessionID]->PostSend(
-				false,
-				pResIn->nSize,
-				PacketSPtr(reinterpret_cast<byte*>(pResIn)));
+			m_SessionList[nSessionID]->PostSend(false, SendPkt.nSize, (byte*)&SendPkt);
 		}
 		break;
-	case REQ_CHAT:
+
+		case REQ_CHAT:
 		{
-			auto pPacket = reinterpret_cast<const PKT_REQ_CHAT*>(&*itrData);
-			
-			PKT_NOTICE_CHAT* pReqChat = new PKT_NOTICE_CHAT;
-			pReqChat->Init();
-			pReqChat->name = m_SessionList[nSessionID]->GetRawName();
-			pReqChat->message = pPacket->message;
+			PKT_REQ_CHAT* pPacket = (PKT_REQ_CHAT*)pData;
+
+			PKT_NOTICE_CHAT SendPkt;
+			SendPkt.Init();
+			strncpy_s(SendPkt.szName, MAX_NAME_LEN, m_SessionList[nSessionID]->GetName(), MAX_NAME_LEN - 1);
+			strncpy_s(SendPkt.szMessage, MAX_MESSAGE_LEN, pPacket->szMessage, MAX_MESSAGE_LEN - 1);
 
 			size_t nTotalSessionCount = m_SessionList.size();
-			for (size_t i=0; i<nTotalSessionCount; ++i)
+
+			for (size_t i = 0; i < nTotalSessionCount; ++i)
 			{
 				if (m_SessionList[i]->Socket().is_open())
 				{
-					m_SessionList[i]->PostSend(
-						false,
-						pReqChat->nSize,
-						PacketSPtr(reinterpret_cast<byte*>(pReqChat)));
+					m_SessionList[i]->PostSend(false, SendPkt.nSize, (byte*)&SendPkt);
 				}
 			}
 		}
 		break;
 	}
+
+	return;
 }
 
 bool ChatServer::PostAccept()
@@ -123,7 +122,7 @@ bool ChatServer::PostAccept()
 	m_SessionQueue.pop_front();
 	m_acceptor.async_accept(
 		m_SessionList[nSessionID]->Socket(),
-		boost::bind(&ChatServer::handle_accept,
+		std::bind(&ChatServer::handle_accept,
 			this,
 			m_SessionList[nSessionID],
 			boost::asio::placeholders::error));
@@ -132,7 +131,7 @@ bool ChatServer::PostAccept()
 }
 
 void ChatServer::handle_accept(
-	SessionSPtr pSession, 
+	Session* pSession, 
 	const boost::system::error_code& error)
 {
 	if (!error)

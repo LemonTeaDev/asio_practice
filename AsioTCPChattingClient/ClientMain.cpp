@@ -18,12 +18,12 @@ int main()
 
 	ChatClient client(io_svc);
 	client.Connect(endpoint);
-	
-	std::thread thread(boost::bind(&boost::asio::io_service::run, &io_svc));
+	//std::thread thread(boost::bind(&boost::asio::io_service::run, &io_svc));
+	std::thread thread(std::bind(static_cast<size_t (boost::asio::io_service::*)()>(&boost::asio::io_service::run), &io_svc));
 
-	std::wstring inputMsg;
+	std::string inputMsg;
 
-	while (std::getline(std::wcin, inputMsg))
+	while (std::getline(std::cin, inputMsg))
 	{
 		if (inputMsg.length() < 1)
 		{
@@ -38,19 +38,19 @@ int main()
 
 		if (client.IsLoggedIn() == false)
 		{
-			PKT_REQ_IN* pReqIn = new PKT_REQ_IN;
-			pReqIn->Init();
-			pReqIn->name = codeCvt.to_bytes(inputMsg);
+			PKT_REQ_IN SendPkt;
+			SendPkt.Init();
+			strncpy_s(SendPkt.szName, MAX_NAME_LEN, inputMsg.c_str(), MAX_NAME_LEN - 1);
 
-			client.PostSend(false, pReqIn->nSize, PacketSPtr(reinterpret_cast<byte*>(pReqIn)));
+			client.PostSend(false, SendPkt.nSize, (byte*)&SendPkt);
 		}
 		else
 		{
-			PKT_REQ_CHAT* pReqChat = new PKT_REQ_CHAT;
-			pReqChat->Init();
-			pReqChat->message = codeCvt.to_bytes(inputMsg);
+			PKT_REQ_CHAT SendPkt;
+			SendPkt.Init();
+			strncpy_s(SendPkt.szMessage, MAX_MESSAGE_LEN, inputMsg.c_str(), MAX_MESSAGE_LEN - 1);
 
-			client.PostSend(false, pReqChat->nSize, PacketSPtr(reinterpret_cast<byte*>(pReqChat)));
+			client.PostSend(false, SendPkt.nSize, (byte*)&SendPkt);
 		}
 	}
 

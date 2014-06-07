@@ -1,6 +1,6 @@
 #include "ChattingClient.h"
-#include <boost/bind.hpp>
 #include <boost/thread.hpp>
+#include <functional>
 
 ChatClient::ChatClient(boost::asio::io_service& io_service)
 	: m_IOService(io_service), m_Socket(io_service)
@@ -43,7 +43,7 @@ void ChatClient::Connect(boost::asio::ip::tcp::endpoint endpoint)
 	m_nPacketBufferMark = 0;
 
 	m_Socket.async_connect(endpoint,
-		boost::bind(&ChatClient::handle_connect, this,
+		std::bind(&ChatClient::handle_connect, this,
 		boost::asio::placeholders::error));
 }
 
@@ -55,25 +55,31 @@ void ChatClient::Close()
 	}
 }
 
-void ChatClient::PostSend(const bool bImmediately, const int nSize, PacketSPtr pData)
+void ChatClient::PostSend(const bool bImmediately, const int nSize, byte* pData)
 {
-	PacketSPtr pSendData(nullptr);
+	byte* pSendData = nullptr;
 
 	EnterCriticalSection(&m_lock);		// 락 시작
 
 	if (bImmediately == false)
 	{
-		m_SendDataQueue.push_back(pData);
-	}
+		pSendData = new byte[nSize];
+		memcpy(pSendData, pData, nSize);
 
-	pSendData = pData;
+		m_SendDataQueue.push_back(pSendData);
+	}
+	else
+	{
+		pSendData = pData;
+	}
 
 	if (bImmediately || m_SendDataQueue.size() < 2)
 	{
-		boost::asio::async_write(m_Socket, boost::asio::buffer(pSendData.get(), nSize),
-			boost::bind(&ChatClient::handle_write, this,
-				boost::asio::placeholders::error,
-				boost::asio::placeholders::bytes_transferred));
+		boost::asio::async_write(m_Socket, boost::asio::buffer(pSendData, nSize),
+			std::bind(&ChatClient::handle_write, this,
+			boost::asio::placeholders::error,
+			boost::asio::placeholders::bytes_transferred)
+			);
 	}
 
 	LeaveCriticalSection(&m_lock);		// 락 완료
@@ -85,7 +91,7 @@ void ChatClient::PostReceive()
 
 	m_Socket.async_read_some(
 		boost::asio::buffer(m_ReceiveBuffer),
-		boost::bind(&ChatClient::handle_receive, this,
+		std::bind(&ChatClient::handle_receive, this,
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred));
 }
@@ -107,11 +113,12 @@ void ChatClient::handle_connect(const boost::system::error_code& error)
 
 void ChatClient::handle_write(const boost::system::error_code& error, size_t bytes_transferred)
 {
-	PacketSPtr pData = nullptr;
-
 	EnterCriticalSection(&m_lock);			// 락 시작
 
+	delete[] m_SendDataQueue.front();
 	m_SendDataQueue.pop_front();
+
+	byte* pData = nullptr;
 
 	if (m_SendDataQueue.empty() == false)
 	{
@@ -123,7 +130,7 @@ void ChatClient::handle_write(const boost::system::error_code& error, size_t byt
 
 	if (pData != nullptr)
 	{
-		auto pHeader = reinterpret_cast<const PACKET_HEADER*>(pData.get());
+		PACKET_HEADER* pHeader = (PACKET_HEADER*)pData;
 		PostSend(true, pHeader->nSize, pData);
 	}
 }
@@ -145,10 +152,7 @@ void ChatClient::handle_receive(const boost::system::error_code& error, size_t b
 	}
 	else
 	{
-		std::copy_n(
-			m_ReceiveBuffer.begin(),
-			bytes_transferred,
-			m_PacketBuffer.begin() + m_nPacketBufferMark);
+		memcpy(&m_PacketBuffer[m_nPacketBufferMark], m_ReceiveBuffer.data(), bytes_transferred);
 
 		int nPacketData = m_nPacketBufferMark + bytes_transferred;
 		int nReadData = 0;
@@ -160,12 +164,11 @@ void ChatClient::handle_receive(const boost::system::error_code& error, size_t b
 				break;
 			}
 
-			PACKET_HEADER* pHeader = reinterpret_cast<PACKET_HEADER*>(
-				&m_PacketBuffer[nReadData]);
+			PACKET_HEADER* pHeader = (PACKET_HEADER*)&m_PacketBuffer[nReadData];
 
 			if (pHeader->nSize <= nPacketData)
 			{
-				ProcessPacket(m_PacketBuffer.begin() + nReadData);
+				ProcessPacket(&m_PacketBuffer[nReadData]);
 
 				nPacketData -= pHeader->nSize;
 				nReadData += pHeader->nSize;
@@ -178,34 +181,36 @@ void ChatClient::handle_receive(const boost::system::error_code& error, size_t b
 
 		if (nPacketData > 0)
 		{
-			std::array<byte, MAX_RECEIVE_BUFFER_LEN> tempBuffer;
-			std::copy_n(m_PacketBuffer.begin() + nReadData, nPacketData, tempBuffer.begin());
-			std::copy_n(tempBuffer.begin(), nPacketData, m_PacketBuffer.begin() + nReadData);
+			byte TempBuffer[MAX_RECEIVE_BUFFER_LEN] = { 0, };
+			memcpy(&TempBuffer[0], &m_PacketBuffer[nReadData], nPacketData);
+			memcpy(&m_PacketBuffer[0], &TempBuffer[0], nPacketData);
 		}
 
 		m_nPacketBufferMark = nPacketData;
+
 
 		PostReceive();
 	}
 }
 
-void ChatClient::ProcessPacket(std::vector<byte>::const_iterator itrData)
+void ChatClient::ProcessPacket(const byte* pData)
 {
-	auto pHeader = reinterpret_cast<const PACKET_HEADER*>(&*itrData);
+	PACKET_HEADER* pheader = (PACKET_HEADER*)pData;
 
-	switch (pHeader->nID)
+	switch (pheader->nID)
 	{
 		case RES_IN:
 		{
-			auto pPacket = reinterpret_cast<const PKT_RES_IN*>(&*itrData);
+			PKT_RES_IN* pPacket = (PKT_RES_IN*)pData;
 			PostLogin();
 			std::cout << "클라이언트 로그인 성공 ?: " << pPacket->bIsSuccess << std::endl;
 		}
 		break;
 	case NOTICE_CHAT:
 		{
-			auto pPacket = reinterpret_cast<const PKT_NOTICE_CHAT*>(&*itrData);
-			std::cout << pPacket->name.c_str() << ": " << pPacket->message.c_str() << std::endl;
+			PKT_NOTICE_CHAT* pPacket = (PKT_NOTICE_CHAT*)pData;
+
+			std::cout << pPacket->szName << ": " << pPacket->szMessage << std::endl;
 		}
 		break;
 	}

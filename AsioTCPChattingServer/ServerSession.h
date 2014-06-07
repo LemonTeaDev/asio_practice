@@ -1,8 +1,8 @@
 #pragma once
 #include <deque>
-#include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include "../Common/Protocol.h"
+#include <string>
 
 class ChatServer;
 
@@ -16,10 +16,9 @@ public:
 	boost::asio::ip::tcp::socket& Socket();
 	void Init();
 	void PostReceive();
-	void PostSend(const bool bImmediately, const int nSize, PacketSPtr pData);
-	void SetName(const std::string& name);
-	const std::wstring GetName() const;
-	const std::string& GetRawName() const;
+	void PostSend(const bool bImmediately, const int nSize, byte* pData);
+	void SetName(const byte* pszName);
+	const byte* GetName() const;
 
 private:
 	void handle_write(const boost::system::error_code& error, size_t bytes_transferred);
@@ -28,10 +27,11 @@ private:
 	int m_nSessionID;
 	boost::asio::ip::tcp::socket m_Socket;
 	std::vector<byte> m_ReceiveBuffer;
-	std::vector<byte> m_PacketBuffer;
+
 	int m_nPacketBufferMark;
-	bool m_bCompletedWrite;
-	std::deque<PacketSPtr> m_SendDataQueue;
+	byte m_PacketBuffer[MAX_RECEIVE_BUFFER_LEN * 2];
+
+	std::deque<byte*> m_SendDataQueue;
 	std::string m_Name;
 	ChatServer* const m_pServer;
 };
