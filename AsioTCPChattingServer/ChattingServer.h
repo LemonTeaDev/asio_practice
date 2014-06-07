@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include "ServerSession.h"
-#include "Protocol.h"
+#include "../Common/Protocol.h"
 
 class ChatServer
 {
@@ -22,9 +22,10 @@ public:
 		std::vector<byte>::const_iterator pData);
 
 private:
+	typedef std::shared_ptr<Session> SessionSPtr;
 	bool PostAccept();
 	void handle_accept(
-		Session* pSession, 
+		SessionSPtr pSession, 
 		const boost::system::error_code& error);
 
 private:
@@ -32,6 +33,6 @@ private:
 	bool m_bIsAccepting;
 	boost::asio::ip::tcp::acceptor m_acceptor;
 
-	std::vector<Session*> m_SessionList;
+	std::vector<SessionSPtr> m_SessionList;
 	std::deque<int> m_SessionQueue;
 };
