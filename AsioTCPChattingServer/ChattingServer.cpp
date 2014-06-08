@@ -29,8 +29,6 @@ ChatServer::~ChatServer()
 		{
 			m_SessionList[i]->Socket().close();
 		}
-
-		delete m_SessionList[i];
 	}
 }
 
@@ -38,7 +36,7 @@ void ChatServer::Init(const int nMaxSessionCount)
 {
 	for (int i=0; i < nMaxSessionCount; ++i)
 	{
-		Session* pSession = new Session(i, m_acceptor.get_io_service(), this);
+		shared_Session pSession(new Session(i, m_acceptor.get_io_service(), *this));
 		m_SessionList.push_back(pSession);
 		m_SessionQueue.push_back(i);
 	}
@@ -63,43 +61,45 @@ void ChatServer::CloseSession(const int nSessionID)
 
 void ChatServer::ProcessPacket(
 	const int nSessionID, 
-	const byte* pData)
+	byte* pData)
 {
-	PACKET_HEADER* pheader = (PACKET_HEADER*)pData;
+	auto pHeader = reinterpret_cast<PACKET_HEADER*>(pData);
+	if (pHeader == nullptr) { return; }
 
-	switch (pheader->nID)
+	switch (pHeader->nID)
 	{
 		case REQ_IN:
 		{
-			PKT_REQ_IN* pPacket = (PKT_REQ_IN*)pData;
+			auto pPacket = reinterpret_cast<PKT_REQ_IN*>(pData);
 			m_SessionList[nSessionID]->SetName(pPacket->szName);
 
 			std::cout << "클라이언트 로그인 성공 Name: " << m_SessionList[nSessionID]->GetName() << std::endl;
 
-			PKT_RES_IN SendPkt;
-			SendPkt.Init();
-			SendPkt.bIsSuccess = true;
+			auto pSendPkt = new PKT_RES_IN;
+			auto raw_pSendPkt = reinterpret_cast<byte*>(pSendPkt);
+			pSendPkt->Init();
+			pSendPkt->bIsSuccess = true;
 
-			m_SessionList[nSessionID]->PostSend(false, SendPkt.nSize, (byte*)&SendPkt);
+			m_SessionList[nSessionID]->PostSend(false, pSendPkt->nSize, shared_byte(raw_pSendPkt));
 		}
 		break;
 
 		case REQ_CHAT:
 		{
-			PKT_REQ_CHAT* pPacket = (PKT_REQ_CHAT*)pData;
-
-			PKT_NOTICE_CHAT SendPkt;
-			SendPkt.Init();
-			strncpy_s(SendPkt.szName, MAX_NAME_LEN, m_SessionList[nSessionID]->GetName(), MAX_NAME_LEN - 1);
-			strncpy_s(SendPkt.szMessage, MAX_MESSAGE_LEN, pPacket->szMessage, MAX_MESSAGE_LEN - 1);
+			auto pPacket = reinterpret_cast<PKT_REQ_CHAT*>(pData);
+			auto pSendPkt = new PKT_NOTICE_CHAT;
+			pSendPkt->Init();
+			strncpy_s(pSendPkt->szName, MAX_NAME_LEN, m_SessionList[nSessionID]->GetName(), MAX_NAME_LEN - 1);
+			strncpy_s(pSendPkt->szMessage, MAX_MESSAGE_LEN, pPacket->szMessage, MAX_MESSAGE_LEN - 1);
 
 			size_t nTotalSessionCount = m_SessionList.size();
-
+			
+			auto sharedPkt = shared_byte(reinterpret_cast<byte*>(pSendPkt));
 			for (size_t i = 0; i < nTotalSessionCount; ++i)
 			{
 				if (m_SessionList[i]->Socket().is_open())
 				{
-					m_SessionList[i]->PostSend(false, SendPkt.nSize, (byte*)&SendPkt);
+					m_SessionList[i]->PostSend(false, pSendPkt->nSize, sharedPkt);
 				}
 			}
 		}
@@ -131,7 +131,7 @@ bool ChatServer::PostAccept()
 }
 
 void ChatServer::handle_accept(
-	Session* pSession, 
+	shared_Session pSession, 
 	const boost::system::error_code& error)
 {
 	if (!error)

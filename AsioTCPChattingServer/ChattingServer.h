@@ -9,6 +9,8 @@
 #include "ServerSession.h"
 #include "../Common/Protocol.h"
 
+#include "ServerCommon.h"
+
 class ChatServer
 {
 public:
@@ -19,13 +21,13 @@ public:
 	void CloseSession(const int nSessionID);
 	void ProcessPacket(
 		const int nSessionID, 
-		const byte* pData);
+		byte* pData);
 
 private:
-	typedef std::shared_ptr<Session> SessionSPtr;
+	typedef std::shared_ptr<Session> shared_Session;
 	bool PostAccept();
 	void handle_accept(
-		Session* pSession, 
+		shared_Session pSession, 
 		const boost::system::error_code& error);
 
 private:
@@ -33,6 +35,6 @@ private:
 	bool m_bIsAccepting;
 	boost::asio::ip::tcp::acceptor m_acceptor;
 
-	std::vector<Session*> m_SessionList;
+	std::vector<shared_Session> m_SessionList;
 	std::deque<int> m_SessionQueue;
 };

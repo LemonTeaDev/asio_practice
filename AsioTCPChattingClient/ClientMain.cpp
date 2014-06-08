@@ -38,19 +38,23 @@ int main()
 
 		if (client.IsLoggedIn() == false)
 		{
-			PKT_REQ_IN SendPkt;
-			SendPkt.Init();
-			strncpy_s(SendPkt.szName, MAX_NAME_LEN, inputMsg.c_str(), MAX_NAME_LEN - 1);
+			auto pSendPkt = new PKT_REQ_IN;
+			auto pRawSendPkt = reinterpret_cast<byte*>(pSendPkt);
 
-			client.PostSend(false, SendPkt.nSize, (byte*)&SendPkt);
+			pSendPkt->Init();
+			strncpy_s(pSendPkt->szName, MAX_NAME_LEN, inputMsg.c_str(), MAX_NAME_LEN - 1);
+
+			client.PostSend(false, pSendPkt->nSize, shared_byte(pRawSendPkt));
 		}
 		else
 		{
-			PKT_REQ_CHAT SendPkt;
-			SendPkt.Init();
-			strncpy_s(SendPkt.szMessage, MAX_MESSAGE_LEN, inputMsg.c_str(), MAX_MESSAGE_LEN - 1);
+			auto pSendPkt = new PKT_REQ_CHAT;
+			auto pRawSendPkt = reinterpret_cast<byte*>(pSendPkt);
 
-			client.PostSend(false, SendPkt.nSize, (byte*)&SendPkt);
+			pSendPkt->Init();
+			strncpy_s(pSendPkt->szMessage, MAX_MESSAGE_LEN, inputMsg.c_str(), MAX_MESSAGE_LEN - 1);
+
+			client.PostSend(false, pSendPkt->nSize, shared_byte(pRawSendPkt));
 		}
 	}
 

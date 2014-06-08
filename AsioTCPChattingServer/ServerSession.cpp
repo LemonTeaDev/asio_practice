@@ -6,19 +6,17 @@
 
 extern std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> codeCvt;
 
-Session::Session(int nSessionID, boost::asio::io_service& io_service, ChatServer* const pServer)
+Session::Session(int nSessionID, boost::asio::io_service& io_service, ChatServer& server)
 	: m_Socket(io_service)
 	, m_nSessionID(nSessionID)
-	, m_pServer(pServer)
+	, m_rServer(server)
 {
-	m_ReceiveBuffer.resize(MAX_RECEIVE_BUFFER_LEN);
 }
 
 Session::~Session()
 {
 	while (m_SendDataQueue.empty() == false)
 	{
-		delete[] m_SendDataQueue.front();
 		m_SendDataQueue.pop_front();
 	}
 }
@@ -52,42 +50,34 @@ void Session::PostReceive()
 void Session::PostSend(
 	const bool bImmediately,
 	const int nSize,
-	byte* pData)
+	shared_byte pData)
 {
-	byte* pSendData = nullptr;
+	shared_byte pSendData = nullptr;
 
 	if (bImmediately == false)
 	{
-		pSendData = new byte[nSize];
-		memcpy(pSendData, pData, nSize);
-
 		m_SendDataQueue.push_back(pSendData);
 	}
-	else
-	{
-		pSendData = pData;
-	}
 
-
+	pSendData = pData;
 
 	if (bImmediately == false && m_SendDataQueue.size() > 1)
 	{
 		return;
 	}
 
-	boost::asio::async_write(m_Socket, boost::asio::buffer(pSendData, nSize),
+	boost::asio::async_write(m_Socket, boost::asio::buffer(pSendData.get(), nSize),
 		std::bind(&Session::handle_write, this,
 		boost::asio::placeholders::error,
-		boost::asio::placeholders::bytes_transferred)
-		);
+		boost::asio::placeholders::bytes_transferred));
 }
 
-void Session::SetName(const byte* pszName)
+void Session::SetName(const char* pszName)
 {
 	m_Name = pszName;
 }
 
-const byte* Session::GetName() const
+const char* Session::GetName() const
 {
 	return m_Name.c_str();
 }
@@ -96,13 +86,12 @@ void Session::handle_write(
 	const boost::system::error_code& error,
 	size_t bytes_transferred)
 {
-	delete[] m_SendDataQueue.front();
 	m_SendDataQueue.pop_front();
 
 	if (m_SendDataQueue.empty() == false)
 	{
-		byte* pData = m_SendDataQueue.front();
-		PACKET_HEADER* pHeader = (PACKET_HEADER*)pData;
+		shared_byte pData = m_SendDataQueue.front();
+		auto pHeader = reinterpret_cast<PACKET_HEADER*>(pData.get());
 		PostSend(true, pHeader->nSize, pData);
 	}
 }
@@ -123,11 +112,18 @@ void Session::handle_receive(
 				<< error.message() << std::endl;
 		}
 
-		m_pServer->CloseSession(m_nSessionID);
+		m_rServer.CloseSession(m_nSessionID);
 	}
 	else
 	{
-		memcpy(&m_PacketBuffer[m_nPacketBufferMark], m_ReceiveBuffer.data(), bytes_transferred);
+		if (static_cast<int>(m_PacketBuffer.size()) < bytes_transferred)
+		{
+			m_PacketBuffer.resize(bytes_transferred * 2);
+		}
+		std::copy_n(
+			m_ReceiveBuffer.data(),
+			bytes_transferred,
+			m_PacketBuffer.begin() + m_nPacketBufferMark);
 
 		int nPacketData = m_nPacketBufferMark + bytes_transferred;
 		int nReadData = 0;
@@ -143,7 +139,7 @@ void Session::handle_receive(
 
 			if (pHeader->nSize <= nPacketData)
 			{
-				m_pServer->ProcessPacket(m_nSessionID, &m_PacketBuffer[nReadData]);
+				m_rServer.ProcessPacket(m_nSessionID, &m_PacketBuffer[nReadData]);
 
 				nPacketData -= pHeader->nSize;
 				nReadData += pHeader->nSize;
@@ -156,9 +152,16 @@ void Session::handle_receive(
 
 		if (nPacketData > 0)
 		{
-			byte TempBuffer[MAX_RECEIVE_BUFFER_LEN] = { 0, };
-			memcpy(&TempBuffer[0], &m_PacketBuffer[nReadData], nPacketData);
-			memcpy(&m_PacketBuffer[0], &TempBuffer[0], nPacketData);
+			std::array<byte, MAX_RECEIVE_BUFFER_LEN>  tempBuffer = {0, };
+			
+			std::copy_n(
+				m_PacketBuffer.begin() + nReadData,
+				nReadData + nPacketData,
+				tempBuffer.begin());
+			std::copy_n(
+				tempBuffer.begin(),
+				nPacketData,
+				m_PacketBuffer.begin());
 		}
 
 		m_nPacketBufferMark = nPacketData;

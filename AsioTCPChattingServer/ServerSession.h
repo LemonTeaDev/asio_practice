@@ -9,16 +9,16 @@ class ChatServer;
 class Session
 {
 public:
-	Session(int nSessionID, boost::asio::io_service& io_service, ChatServer* const pServer);
+	Session(int nSessionID, boost::asio::io_service& io_service, ChatServer& server);
 	~Session();
 
 	const int SessionID() const;
 	boost::asio::ip::tcp::socket& Socket();
 	void Init();
 	void PostReceive();
-	void PostSend(const bool bImmediately, const int nSize, byte* pData);
-	void SetName(const byte* pszName);
-	const byte* GetName() const;
+	void PostSend(const bool bImmediately, const int nSize, shared_byte pData);
+	void SetName(const char* pszName);
+	const char* GetName() const;
 
 private:
 	void handle_write(const boost::system::error_code& error, size_t bytes_transferred);
@@ -26,12 +26,12 @@ private:
 
 	int m_nSessionID;
 	boost::asio::ip::tcp::socket m_Socket;
-	std::vector<byte> m_ReceiveBuffer;
+	std::array<byte, MAX_RECEIVE_BUFFER_LEN> m_ReceiveBuffer;
 
 	int m_nPacketBufferMark;
-	byte m_PacketBuffer[MAX_RECEIVE_BUFFER_LEN * 2];
+	std::vector<byte> m_PacketBuffer;
 
-	std::deque<byte*> m_SendDataQueue;
+	std::deque<shared_byte> m_SendDataQueue;
 	std::string m_Name;
-	ChatServer* const m_pServer;
+	ChatServer& m_rServer;
 };

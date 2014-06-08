@@ -7,17 +7,17 @@
 #include <vector>
 
 const unsigned short PORT_NUMBER = 31400;
-const int MAX_RECEIVE_BUFFER_LEN = 512;
+const int MAX_RECEIVE_BUFFER_LEN = 1024;
 const int MAX_NAME_LEN = 17;
 const int MAX_MESSAGE_LEN = 129;
 typedef char byte;
 
-typedef std::shared_ptr<byte> PacketSPtr;
+typedef std::shared_ptr<byte> shared_byte;
 
 struct PACKET_HEADER
 {
-	short nID;
-	short nSize;
+	int nID;
+	int nSize;
 };
 
 enum Packets
@@ -37,7 +37,7 @@ struct PKT_REQ_IN : public PACKET_HEADER
 		memset(szName, 0, MAX_NAME_LEN);
 	}
 
-	byte szName[MAX_NAME_LEN];
+	char szName[MAX_NAME_LEN];
 };
 
 struct PKT_RES_IN : public PACKET_HEADER
@@ -48,7 +48,7 @@ struct PKT_RES_IN : public PACKET_HEADER
 		nSize = sizeof(PKT_RES_IN);
 		bIsSuccess = false;
 	}
-	
+
 	bool bIsSuccess;
 };
 
@@ -60,7 +60,8 @@ struct PKT_REQ_CHAT : public PACKET_HEADER
 		nSize = sizeof(PKT_REQ_CHAT);
 		memset(szMessage, 0, MAX_MESSAGE_LEN);
 	}
-	byte szMessage[MAX_MESSAGE_LEN];
+
+	char szMessage[MAX_MESSAGE_LEN];
 };
 
 struct PKT_NOTICE_CHAT : public PACKET_HEADER
@@ -73,10 +74,9 @@ struct PKT_NOTICE_CHAT : public PACKET_HEADER
 		memset(szMessage, 0, MAX_MESSAGE_LEN);
 	}
 
-	byte szName[MAX_NAME_LEN];
-	byte szMessage[MAX_MESSAGE_LEN];
+	char szName[MAX_NAME_LEN];
+	char szMessage[MAX_MESSAGE_LEN];
 };
-
 
 namespace boost
 {
