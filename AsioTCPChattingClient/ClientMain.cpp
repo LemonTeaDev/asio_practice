@@ -42,7 +42,7 @@ int main()
 			auto pRawSendPkt = reinterpret_cast<byte*>(pSendPkt);
 
 			pSendPkt->Init();
-			strncpy_s(pSendPkt->szName, MAX_NAME_LEN, inputMsg.c_str(), MAX_NAME_LEN - 1);
+			pSendPkt->SetName(inputMsg);
 
 			client.PostSend(false, pSendPkt->nSize, shared_byte(pRawSendPkt));
 		}

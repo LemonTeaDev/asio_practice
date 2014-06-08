@@ -71,7 +71,7 @@ void ChatServer::ProcessPacket(
 		case REQ_IN:
 		{
 			auto pPacket = reinterpret_cast<PKT_REQ_IN*>(pData);
-			m_SessionList[nSessionID]->SetName(pPacket->szName);
+			m_SessionList[nSessionID]->SetName(pPacket->GetName());
 
 			std::cout << "클라이언트 로그인 성공 Name: " << m_SessionList[nSessionID]->GetName() << std::endl;
 

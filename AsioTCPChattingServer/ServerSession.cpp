@@ -72,9 +72,9 @@ void Session::PostSend(
 		boost::asio::placeholders::bytes_transferred));
 }
 
-void Session::SetName(const char* pszName)
+void Session::SetName(std::string& _name)
 {
-	m_Name = pszName;
+	m_Name = _name;
 }
 
 const char* Session::GetName() const
@@ -135,7 +135,7 @@ void Session::handle_receive(
 				break;
 			}
 
-			PACKET_HEADER* pHeader = (PACKET_HEADER*)&m_PacketBuffer[nReadData];
+			auto pHeader = reinterpret_cast<PACKET_HEADER*>(&m_PacketBuffer[nReadData]);
 
 			if (pHeader->nSize <= nPacketData)
 			{

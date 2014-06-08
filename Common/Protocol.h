@@ -30,14 +30,30 @@ enum Packets
 
 struct PKT_REQ_IN : public PACKET_HEADER
 {
+	typedef std::string name_type;
+	typedef std::vector<name_type::value_type> name_vector_type;
+
 	void Init()
 	{
 		nID = REQ_IN;
 		nSize = sizeof(PKT_REQ_IN);
-		memset(szName, 0, MAX_NAME_LEN);
 	}
 
-	char szName[MAX_NAME_LEN];
+	void SetName(std::string& _name)
+	{
+		name.clear();
+		std::copy(_name.begin(), _name.end(), std::back_inserter(name));
+		nSize = sizeof(PKT_REQ_IN) + name.capacity() * sizeof(name_type::value_type);
+	}
+
+	name_type&& GetName()
+	{
+		name_type str_name(name.begin(), name.end());
+		return std::move(str_name);
+	}
+
+private:
+	name_vector_type name;
 };
 
 struct PKT_RES_IN : public PACKET_HEADER
