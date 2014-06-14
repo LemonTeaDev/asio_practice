@@ -6,6 +6,7 @@
 #include <locale>
 #include <codecvt>
 #include <boost/bind.hpp>
+#include <packet.pb.h>
 
 int main()
 {
@@ -18,7 +19,6 @@ int main()
 
 	ChatClient client(io_svc);
 	client.Connect(endpoint);
-	//std::thread thread(boost::bind(&boost::asio::io_service::run, &io_svc));
 	std::thread thread(std::bind(static_cast<size_t (boost::asio::io_service::*)()>(&boost::asio::io_service::run), &io_svc));
 
 	std::string inputMsg;
@@ -38,13 +38,24 @@ int main()
 
 		if (client.IsLoggedIn() == false)
 		{
+			LoginRequest sendPkt;
+			sendPkt.set_name(inputMsg);
+			
+			auto pktSize = sendPkt.ByteSize();
+
+			shared_byte pkt(new byte[pktSize]);
+			sendPkt.SerializeToArray(pkt.get(), pktSize);
+			client.PostSend(false, pktSize, pkt);
+
+			/*
 			auto pSendPkt = new PKT_REQ_IN;
 			auto pRawSendPkt = reinterpret_cast<byte*>(pSendPkt);
 
 			pSendPkt->Init();
-			pSendPkt->SetName(inputMsg);
+			strncpy_s(pSendPkt->szName, MAX_NAME_LEN, inputMsg.c_str(), MAX_NAME_LEN - 1);
 
 			client.PostSend(false, pSendPkt->nSize, shared_byte(pRawSendPkt));
+			*/
 		}
 		else
 		{

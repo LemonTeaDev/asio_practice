@@ -1,9 +1,19 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 13.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AsioTCPChattingServer", "AsioTCPChattingServer\AsioTCPChattingServer.vcxproj", "{1942BC24-2DDF-4A81-818C-C333BDB3C862}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5BC6BC3D-44F7-4F89-A4D1-CC1CEB7BB67D} = {5BC6BC3D-44F7-4F89-A4D1-CC1CEB7BB67D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AsioTCPChattingClient", "AsioTCPChattingClient\AsioTCPChattingClient.vcxproj", "{BCA248D2-B23F-40BA-B0DE-510F10FEE51B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5BC6BC3D-44F7-4F89-A4D1-CC1CEB7BB67D} = {5BC6BC3D-44F7-4F89-A4D1-CC1CEB7BB67D}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Common", "Common\Common.vcxproj", "{5BC6BC3D-44F7-4F89-A4D1-CC1CEB7BB67D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +29,10 @@ Global
 		{BCA248D2-B23F-40BA-B0DE-510F10FEE51B}.Debug|Win32.Build.0 = Debug|Win32
 		{BCA248D2-B23F-40BA-B0DE-510F10FEE51B}.Release|Win32.ActiveCfg = Release|Win32
 		{BCA248D2-B23F-40BA-B0DE-510F10FEE51B}.Release|Win32.Build.0 = Release|Win32
+		{5BC6BC3D-44F7-4F89-A4D1-CC1CEB7BB67D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5BC6BC3D-44F7-4F89-A4D1-CC1CEB7BB67D}.Debug|Win32.Build.0 = Debug|Win32
+		{5BC6BC3D-44F7-4F89-A4D1-CC1CEB7BB67D}.Release|Win32.ActiveCfg = Release|Win32
+		{5BC6BC3D-44F7-4F89-A4D1-CC1CEB7BB67D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

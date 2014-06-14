@@ -75,7 +75,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\Common\Protocol.h" />
     <ClInclude Include="ChattingServer.h" />
     <ClInclude Include="ServerSession.h" />
   </ItemGroup>

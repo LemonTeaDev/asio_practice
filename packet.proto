@@ -1,0 +1,24 @@
+message Packet {
+	required int32 id = 1;
+	required int32 size = 2;
+}
+	
+message LoginRequest {
+	required Packet header = 3;
+	required string name = 4;
+}
+
+message LoginResponse {
+	required Packet header = 5;
+	required bool success = 6;
+}
+
+message ChatRequest {
+	required Packet header = 7;
+	required string message = 8;
+}
+
+message ChatNotify {
+	required Packet header = 9;
+	required string message = 10;
+}

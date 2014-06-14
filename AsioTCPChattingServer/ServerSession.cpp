@@ -72,7 +72,7 @@ void Session::PostSend(
 		boost::asio::placeholders::bytes_transferred));
 }
 
-void Session::SetName(std::string& _name)
+void Session::SetName(const char* _name)
 {
 	m_Name = _name;
 }
