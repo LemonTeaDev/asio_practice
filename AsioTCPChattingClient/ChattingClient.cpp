@@ -1,6 +1,7 @@
 #include "ChattingClient.h"
 #include <boost/thread.hpp>
 #include <functional>
+#include <packet.pb.h>
 
 ChatClient::ChatClient(boost::asio::io_service& io_service)
 	: m_IOService(io_service), m_Socket(io_service)
@@ -200,19 +201,24 @@ void ChatClient::ProcessPacket(byte* pData)
 	auto pHeader = reinterpret_cast<PACKET_HEADER*>(pData);
 	if (pHeader == nullptr) { return; }
 
+	auto headerSize = sizeof(PACKET_HEADER);
 	switch (pHeader->nID)
 	{
 		case RES_IN:
 		{
-			auto pPacket = reinterpret_cast<PKT_RES_IN*>(pData);
+			LoginResponse loginResponse;
+			loginResponse.ParseFromArray(pData + headerSize, pHeader->nSize - headerSize);
+;
 			PostLogin();
-			std::cout << "클라이언트 로그인 성공 ?: " << pPacket->bIsSuccess << std::endl;
+			std::cout << "클라이언트 로그인 성공 ?: " << loginResponse.success() << std::endl;
 		}
 		break;
 	case NOTICE_CHAT:
 		{
-			auto pPacket = reinterpret_cast<PKT_NOTICE_CHAT*>(pData);
-			std::cout << pPacket->szName << ": " << pPacket->szMessage << std::endl;
+			ChatNotify chatNotify;
+			chatNotify.ParseFromArray(pData + headerSize, pHeader->nSize - headerSize);
+
+			std::cout << chatNotify.name() << ": " << chatNotify.message() << std::endl;
 		}
 		break;
 	}

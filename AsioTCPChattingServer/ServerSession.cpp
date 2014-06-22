@@ -77,6 +77,11 @@ void Session::SetName(const char* _name)
 	m_Name = _name;
 }
 
+void Session::SetName(const std::string& _name)
+{
+	m_Name = _name;
+}
+
 const char* Session::GetName() const
 {
 	return m_Name.c_str();
@@ -118,7 +123,7 @@ void Session::handle_receive(
 	{
 		if (static_cast<int>(m_PacketBuffer.size()) < bytes_transferred)
 		{
-			m_PacketBuffer.resize(bytes_transferred * 2);
+			m_PacketBuffer.resize(bytes_transferred * 3);
 		}
 		std::copy_n(
 			m_ReceiveBuffer.data(),

@@ -12,6 +12,7 @@
 
 #include "ServerSession.h"
 #include "../Common/Protocol.h"
+#include <packet.pb.h>
 
 std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> codeCvt;
 
@@ -66,40 +67,56 @@ void ChatServer::ProcessPacket(
 	auto pHeader = reinterpret_cast<PACKET_HEADER*>(pData);
 	if (pHeader == nullptr) { return; }
 
+	auto headerSize = sizeof(PACKET_HEADER);
 	switch (pHeader->nID)
 	{
 		case REQ_IN:
 		{
-			auto pPacket = reinterpret_cast<PKT_REQ_IN*>(pData);
-			m_SessionList[nSessionID]->SetName(pPacket->szName);
+			LoginRequest loginRequest;
+			loginRequest.ParseFromArray(pData + headerSize, pHeader->nSize - headerSize);
 
+			m_SessionList[nSessionID]->SetName(loginRequest.name());
 			std::cout << "클라이언트 로그인 성공 Name: " << m_SessionList[nSessionID]->GetName() << std::endl;
 
-			auto pSendPkt = new PKT_RES_IN;
-			auto raw_pSendPkt = reinterpret_cast<byte*>(pSendPkt);
-			pSendPkt->Init();
-			pSendPkt->bIsSuccess = true;
+			LoginResponse sendPkt;
+			sendPkt.set_success(true);
+			auto pktSize = sendPkt.ByteSize();
 
-			m_SessionList[nSessionID]->PostSend(false, pSendPkt->nSize, shared_byte(raw_pSendPkt));
+			shared_byte pkt(new byte[pktSize + headerSize]);
+			
+			PACKET_HEADER* pHeader = new (pkt.get()) PACKET_HEADER;
+			pHeader->nID = RES_IN;
+			pHeader->nSize = pktSize + headerSize;
+
+			sendPkt.SerializeToArray(pkt.get() + headerSize, pktSize);
+			m_SessionList[nSessionID]->PostSend(false, pHeader->nSize, pkt);
 		}
 		break;
 
 		case REQ_CHAT:
 		{
-			auto pPacket = reinterpret_cast<PKT_REQ_CHAT*>(pData);
-			auto pSendPkt = new PKT_NOTICE_CHAT;
-			pSendPkt->Init();
-			strncpy_s(pSendPkt->szName, MAX_NAME_LEN, m_SessionList[nSessionID]->GetName(), MAX_NAME_LEN - 1);
-			strncpy_s(pSendPkt->szMessage, MAX_MESSAGE_LEN, pPacket->szMessage, MAX_MESSAGE_LEN - 1);
+			ChatRequest chatRequest;
+			chatRequest.ParseFromArray(pData + headerSize, pHeader->nSize - headerSize);
+
+			ChatNotify sendPkt;
+			sendPkt.set_name(m_SessionList[nSessionID]->GetName());
+			sendPkt.set_message(chatRequest.message());
+			
+			auto pktSize = sendPkt.ByteSize();
+			shared_byte pkt(new byte[pktSize + headerSize]);
+			
+			PACKET_HEADER* pHeader = new (pkt.get()) PACKET_HEADER;
+			pHeader->nID = NOTICE_CHAT;
+			pHeader->nSize = pktSize + headerSize;
+
+			sendPkt.SerializeToArray(pkt.get() + headerSize, pktSize);
 
 			size_t nTotalSessionCount = m_SessionList.size();
-			
-			auto sharedPkt = shared_byte(reinterpret_cast<byte*>(pSendPkt));
 			for (size_t i = 0; i < nTotalSessionCount; ++i)
 			{
 				if (m_SessionList[i]->Socket().is_open())
 				{
-					m_SessionList[i]->PostSend(false, pSendPkt->nSize, sharedPkt);
+					m_SessionList[i]->PostSend(false, pHeader->nSize, pkt);
 				}
 			}
 		}

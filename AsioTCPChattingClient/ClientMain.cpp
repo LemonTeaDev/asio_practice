@@ -40,32 +40,33 @@ int main()
 		{
 			LoginRequest sendPkt;
 			sendPkt.set_name(inputMsg);
-			
 			auto pktSize = sendPkt.ByteSize();
+			auto headerSize = sizeof(PACKET_HEADER);
 
-			shared_byte pkt(new byte[pktSize]);
-			sendPkt.SerializeToArray(pkt.get(), pktSize);
-			client.PostSend(false, pktSize, pkt);
+			shared_byte pkt(new byte[pktSize + headerSize]);
 
-			/*
-			auto pSendPkt = new PKT_REQ_IN;
-			auto pRawSendPkt = reinterpret_cast<byte*>(pSendPkt);
+			PACKET_HEADER* pHeader = new (pkt.get()) PACKET_HEADER;
+			pHeader->nID = REQ_IN;
+			pHeader->nSize = pktSize + headerSize;
 
-			pSendPkt->Init();
-			strncpy_s(pSendPkt->szName, MAX_NAME_LEN, inputMsg.c_str(), MAX_NAME_LEN - 1);
-
-			client.PostSend(false, pSendPkt->nSize, shared_byte(pRawSendPkt));
-			*/
+			sendPkt.SerializeToArray(pkt.get() + headerSize, pktSize);
+			client.PostSend(false, pHeader->nSize, pkt);
 		}
 		else
 		{
-			auto pSendPkt = new PKT_REQ_CHAT;
-			auto pRawSendPkt = reinterpret_cast<byte*>(pSendPkt);
+			ChatRequest sendPkt;
+			sendPkt.set_message(inputMsg);
+			auto pktSize = sendPkt.ByteSize();
+			auto headerSize = sizeof(PACKET_HEADER);
 
-			pSendPkt->Init();
-			strncpy_s(pSendPkt->szMessage, MAX_MESSAGE_LEN, inputMsg.c_str(), MAX_MESSAGE_LEN - 1);
+			shared_byte pkt(new byte[pktSize + headerSize]);
 
-			client.PostSend(false, pSendPkt->nSize, shared_byte(pRawSendPkt));
+			PACKET_HEADER* pHeader = new (pkt.get()) PACKET_HEADER;
+			pHeader->nID = REQ_CHAT;
+			pHeader->nSize = pktSize + headerSize;
+
+			sendPkt.SerializeToArray(pkt.get() + headerSize, pktSize);
+			client.PostSend(false, pHeader->nSize, pkt);
 		}
 	}
 

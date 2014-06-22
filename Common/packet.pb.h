@@ -31,105 +31,12 @@ void  protobuf_AddDesc_packet_2eproto();
 void protobuf_AssignDesc_packet_2eproto();
 void protobuf_ShutdownFile_packet_2eproto();
 
-class Packet;
 class LoginRequest;
 class LoginResponse;
 class ChatRequest;
 class ChatNotify;
 
 // ===================================================================
-
-class Packet : public ::google::protobuf::Message {
- public:
-  Packet();
-  virtual ~Packet();
-
-  Packet(const Packet& from);
-
-  inline Packet& operator=(const Packet& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const Packet& default_instance();
-
-  void Swap(Packet* other);
-
-  // implements Message ----------------------------------------------
-
-  Packet* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const Packet& from);
-  void MergeFrom(const Packet& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // required int32 id = 1;
-  inline bool has_id() const;
-  inline void clear_id();
-  static const int kIdFieldNumber = 1;
-  inline ::google::protobuf::int32 id() const;
-  inline void set_id(::google::protobuf::int32 value);
-
-  // required int32 size = 2;
-  inline bool has_size() const;
-  inline void clear_size();
-  static const int kSizeFieldNumber = 2;
-  inline ::google::protobuf::int32 size() const;
-  inline void set_size(::google::protobuf::int32 value);
-
-  // @@protoc_insertion_point(class_scope:Packet)
- private:
-  inline void set_has_id();
-  inline void clear_has_id();
-  inline void set_has_size();
-  inline void clear_has_size();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::int32 id_;
-  ::google::protobuf::int32 size_;
-
-  mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
-
-  friend void  protobuf_AddDesc_packet_2eproto();
-  friend void protobuf_AssignDesc_packet_2eproto();
-  friend void protobuf_ShutdownFile_packet_2eproto();
-
-  void InitAsDefaultInstance();
-  static Packet* default_instance_;
-};
-// -------------------------------------------------------------------
 
 class LoginRequest : public ::google::protobuf::Message {
  public:
@@ -185,19 +92,10 @@ class LoginRequest : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required .Packet header = 3;
-  inline bool has_header() const;
-  inline void clear_header();
-  static const int kHeaderFieldNumber = 3;
-  inline const ::Packet& header() const;
-  inline ::Packet* mutable_header();
-  inline ::Packet* release_header();
-  inline void set_allocated_header(::Packet* header);
-
-  // required string name = 4;
+  // required string name = 1;
   inline bool has_name() const;
   inline void clear_name();
-  static const int kNameFieldNumber = 4;
+  static const int kNameFieldNumber = 1;
   inline const ::std::string& name() const;
   inline void set_name(const ::std::string& value);
   inline void set_name(const char* value);
@@ -208,18 +106,15 @@ class LoginRequest : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:LoginRequest)
  private:
-  inline void set_has_header();
-  inline void clear_has_header();
   inline void set_has_name();
   inline void clear_has_name();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::Packet* header_;
   ::std::string* name_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
 
   friend void  protobuf_AddDesc_packet_2eproto();
   friend void protobuf_AssignDesc_packet_2eproto();
@@ -284,36 +179,24 @@ class LoginResponse : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required .Packet header = 5;
-  inline bool has_header() const;
-  inline void clear_header();
-  static const int kHeaderFieldNumber = 5;
-  inline const ::Packet& header() const;
-  inline ::Packet* mutable_header();
-  inline ::Packet* release_header();
-  inline void set_allocated_header(::Packet* header);
-
-  // required bool success = 6;
+  // required bool success = 2;
   inline bool has_success() const;
   inline void clear_success();
-  static const int kSuccessFieldNumber = 6;
+  static const int kSuccessFieldNumber = 2;
   inline bool success() const;
   inline void set_success(bool value);
 
   // @@protoc_insertion_point(class_scope:LoginResponse)
  private:
-  inline void set_has_header();
-  inline void clear_has_header();
   inline void set_has_success();
   inline void clear_has_success();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::Packet* header_;
   bool success_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
 
   friend void  protobuf_AddDesc_packet_2eproto();
   friend void protobuf_AssignDesc_packet_2eproto();
@@ -378,19 +261,10 @@ class ChatRequest : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required .Packet header = 7;
-  inline bool has_header() const;
-  inline void clear_header();
-  static const int kHeaderFieldNumber = 7;
-  inline const ::Packet& header() const;
-  inline ::Packet* mutable_header();
-  inline ::Packet* release_header();
-  inline void set_allocated_header(::Packet* header);
-
-  // required string message = 8;
+  // required string message = 3;
   inline bool has_message() const;
   inline void clear_message();
-  static const int kMessageFieldNumber = 8;
+  static const int kMessageFieldNumber = 3;
   inline const ::std::string& message() const;
   inline void set_message(const ::std::string& value);
   inline void set_message(const char* value);
@@ -401,18 +275,15 @@ class ChatRequest : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:ChatRequest)
  private:
-  inline void set_has_header();
-  inline void clear_has_header();
   inline void set_has_message();
   inline void clear_has_message();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::Packet* header_;
   ::std::string* message_;
 
   mutable int _cached_size_;
-  ::google::protobuf::uint32 _has_bits_[(2 + 31) / 32];
+  ::google::protobuf::uint32 _has_bits_[(1 + 31) / 32];
 
   friend void  protobuf_AddDesc_packet_2eproto();
   friend void protobuf_AssignDesc_packet_2eproto();
@@ -477,19 +348,22 @@ class ChatNotify : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required .Packet header = 9;
-  inline bool has_header() const;
-  inline void clear_header();
-  static const int kHeaderFieldNumber = 9;
-  inline const ::Packet& header() const;
-  inline ::Packet* mutable_header();
-  inline ::Packet* release_header();
-  inline void set_allocated_header(::Packet* header);
+  // required string name = 4;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 4;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  inline ::std::string* release_name();
+  inline void set_allocated_name(::std::string* name);
 
-  // required string message = 10;
+  // required string message = 5;
   inline bool has_message() const;
   inline void clear_message();
-  static const int kMessageFieldNumber = 10;
+  static const int kMessageFieldNumber = 5;
   inline const ::std::string& message() const;
   inline void set_message(const ::std::string& value);
   inline void set_message(const char* value);
@@ -500,14 +374,14 @@ class ChatNotify : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:ChatNotify)
  private:
-  inline void set_has_header();
-  inline void clear_has_header();
+  inline void set_has_name();
+  inline void clear_has_name();
   inline void set_has_message();
   inline void clear_has_message();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
-  ::Packet* header_;
+  ::std::string* name_;
   ::std::string* message_;
 
   mutable int _cached_size_;
@@ -525,103 +399,17 @@ class ChatNotify : public ::google::protobuf::Message {
 
 // ===================================================================
 
-// Packet
-
-// required int32 id = 1;
-inline bool Packet::has_id() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void Packet::set_has_id() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void Packet::clear_has_id() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void Packet::clear_id() {
-  id_ = 0;
-  clear_has_id();
-}
-inline ::google::protobuf::int32 Packet::id() const {
-  return id_;
-}
-inline void Packet::set_id(::google::protobuf::int32 value) {
-  set_has_id();
-  id_ = value;
-}
-
-// required int32 size = 2;
-inline bool Packet::has_size() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void Packet::set_has_size() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void Packet::clear_has_size() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void Packet::clear_size() {
-  size_ = 0;
-  clear_has_size();
-}
-inline ::google::protobuf::int32 Packet::size() const {
-  return size_;
-}
-inline void Packet::set_size(::google::protobuf::int32 value) {
-  set_has_size();
-  size_ = value;
-}
-
-// -------------------------------------------------------------------
-
 // LoginRequest
 
-// required .Packet header = 3;
-inline bool LoginRequest::has_header() const {
+// required string name = 1;
+inline bool LoginRequest::has_name() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void LoginRequest::set_has_header() {
+inline void LoginRequest::set_has_name() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void LoginRequest::clear_has_header() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void LoginRequest::clear_header() {
-  if (header_ != NULL) header_->::Packet::Clear();
-  clear_has_header();
-}
-inline const ::Packet& LoginRequest::header() const {
-  return header_ != NULL ? *header_ : *default_instance_->header_;
-}
-inline ::Packet* LoginRequest::mutable_header() {
-  set_has_header();
-  if (header_ == NULL) header_ = new ::Packet;
-  return header_;
-}
-inline ::Packet* LoginRequest::release_header() {
-  clear_has_header();
-  ::Packet* temp = header_;
-  header_ = NULL;
-  return temp;
-}
-inline void LoginRequest::set_allocated_header(::Packet* header) {
-  delete header_;
-  header_ = header;
-  if (header) {
-    set_has_header();
-  } else {
-    clear_has_header();
-  }
-}
-
-// required string name = 4;
-inline bool LoginRequest::has_name() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void LoginRequest::set_has_name() {
-  _has_bits_[0] |= 0x00000002u;
-}
 inline void LoginRequest::clear_has_name() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void LoginRequest::clear_name() {
   if (name_ != &::google::protobuf::internal::kEmptyString) {
@@ -687,53 +475,15 @@ inline void LoginRequest::set_allocated_name(::std::string* name) {
 
 // LoginResponse
 
-// required .Packet header = 5;
-inline bool LoginResponse::has_header() const {
+// required bool success = 2;
+inline bool LoginResponse::has_success() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void LoginResponse::set_has_header() {
+inline void LoginResponse::set_has_success() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void LoginResponse::clear_has_header() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void LoginResponse::clear_header() {
-  if (header_ != NULL) header_->::Packet::Clear();
-  clear_has_header();
-}
-inline const ::Packet& LoginResponse::header() const {
-  return header_ != NULL ? *header_ : *default_instance_->header_;
-}
-inline ::Packet* LoginResponse::mutable_header() {
-  set_has_header();
-  if (header_ == NULL) header_ = new ::Packet;
-  return header_;
-}
-inline ::Packet* LoginResponse::release_header() {
-  clear_has_header();
-  ::Packet* temp = header_;
-  header_ = NULL;
-  return temp;
-}
-inline void LoginResponse::set_allocated_header(::Packet* header) {
-  delete header_;
-  header_ = header;
-  if (header) {
-    set_has_header();
-  } else {
-    clear_has_header();
-  }
-}
-
-// required bool success = 6;
-inline bool LoginResponse::has_success() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void LoginResponse::set_has_success() {
-  _has_bits_[0] |= 0x00000002u;
-}
 inline void LoginResponse::clear_has_success() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void LoginResponse::clear_success() {
   success_ = false;
@@ -751,53 +501,15 @@ inline void LoginResponse::set_success(bool value) {
 
 // ChatRequest
 
-// required .Packet header = 7;
-inline bool ChatRequest::has_header() const {
+// required string message = 3;
+inline bool ChatRequest::has_message() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void ChatRequest::set_has_header() {
+inline void ChatRequest::set_has_message() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void ChatRequest::clear_has_header() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void ChatRequest::clear_header() {
-  if (header_ != NULL) header_->::Packet::Clear();
-  clear_has_header();
-}
-inline const ::Packet& ChatRequest::header() const {
-  return header_ != NULL ? *header_ : *default_instance_->header_;
-}
-inline ::Packet* ChatRequest::mutable_header() {
-  set_has_header();
-  if (header_ == NULL) header_ = new ::Packet;
-  return header_;
-}
-inline ::Packet* ChatRequest::release_header() {
-  clear_has_header();
-  ::Packet* temp = header_;
-  header_ = NULL;
-  return temp;
-}
-inline void ChatRequest::set_allocated_header(::Packet* header) {
-  delete header_;
-  header_ = header;
-  if (header) {
-    set_has_header();
-  } else {
-    clear_has_header();
-  }
-}
-
-// required string message = 8;
-inline bool ChatRequest::has_message() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void ChatRequest::set_has_message() {
-  _has_bits_[0] |= 0x00000002u;
-}
 inline void ChatRequest::clear_has_message() {
-  _has_bits_[0] &= ~0x00000002u;
+  _has_bits_[0] &= ~0x00000001u;
 }
 inline void ChatRequest::clear_message() {
   if (message_ != &::google::protobuf::internal::kEmptyString) {
@@ -863,45 +575,77 @@ inline void ChatRequest::set_allocated_message(::std::string* message) {
 
 // ChatNotify
 
-// required .Packet header = 9;
-inline bool ChatNotify::has_header() const {
+// required string name = 4;
+inline bool ChatNotify::has_name() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void ChatNotify::set_has_header() {
+inline void ChatNotify::set_has_name() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void ChatNotify::clear_has_header() {
+inline void ChatNotify::clear_has_name() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void ChatNotify::clear_header() {
-  if (header_ != NULL) header_->::Packet::Clear();
-  clear_has_header();
+inline void ChatNotify::clear_name() {
+  if (name_ != &::google::protobuf::internal::kEmptyString) {
+    name_->clear();
+  }
+  clear_has_name();
 }
-inline const ::Packet& ChatNotify::header() const {
-  return header_ != NULL ? *header_ : *default_instance_->header_;
+inline const ::std::string& ChatNotify::name() const {
+  return *name_;
 }
-inline ::Packet* ChatNotify::mutable_header() {
-  set_has_header();
-  if (header_ == NULL) header_ = new ::Packet;
-  return header_;
+inline void ChatNotify::set_name(const ::std::string& value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
 }
-inline ::Packet* ChatNotify::release_header() {
-  clear_has_header();
-  ::Packet* temp = header_;
-  header_ = NULL;
-  return temp;
+inline void ChatNotify::set_name(const char* value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
 }
-inline void ChatNotify::set_allocated_header(::Packet* header) {
-  delete header_;
-  header_ = header;
-  if (header) {
-    set_has_header();
+inline void ChatNotify::set_name(const char* value, size_t size) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+}
+inline ::std::string* ChatNotify::mutable_name() {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    name_ = new ::std::string;
+  }
+  return name_;
+}
+inline ::std::string* ChatNotify::release_name() {
+  clear_has_name();
+  if (name_ == &::google::protobuf::internal::kEmptyString) {
+    return NULL;
   } else {
-    clear_has_header();
+    ::std::string* temp = name_;
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
+    return temp;
+  }
+}
+inline void ChatNotify::set_allocated_name(::std::string* name) {
+  if (name_ != &::google::protobuf::internal::kEmptyString) {
+    delete name_;
+  }
+  if (name) {
+    set_has_name();
+    name_ = name;
+  } else {
+    clear_has_name();
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::kEmptyString);
   }
 }
 
-// required string message = 10;
+// required string message = 5;
 inline bool ChatNotify::has_message() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }

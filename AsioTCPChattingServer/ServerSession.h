@@ -18,6 +18,7 @@ public:
 	void PostReceive();
 	void PostSend(const bool bImmediately, const int nSize, shared_byte pData);
 	
+	void SetName(const std::string& name);
 	void SetName(const char* name);
 	const char* GetName() const;
 
