@@ -79,13 +79,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ChattingServer.h" />
-    <ClInclude Include="ServerSession.h" />
+    <ClInclude Include="chatting_server.h" />
+    <ClInclude Include="server_session.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ChattingServer.cpp" />
-    <ClCompile Include="ServerMain.cpp" />
-    <ClCompile Include="ServerSession.cpp" />
+    <ClCompile Include="chatting_server.cpp" />
+    <ClCompile Include="server_main.cpp" />
+    <ClCompile Include="server_session.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

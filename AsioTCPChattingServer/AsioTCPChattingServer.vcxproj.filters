@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ServerSession.h">
+    <ClInclude Include="chatting_server.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="ChattingServer.h">
+    <ClInclude Include="server_session.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ServerSession.cpp">
+    <ClCompile Include="chatting_server.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ChattingServer.cpp">
+    <ClCompile Include="server_main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="ServerMain.cpp">
+    <ClCompile Include="server_session.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

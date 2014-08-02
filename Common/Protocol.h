@@ -7,24 +7,39 @@
 #include <vector>
 
 const unsigned short PORT_NUMBER = 31400;
-const int MAX_RECEIVE_BUFFER_LEN = 1024;
+const int MAX_RECEIVE_BUFFER_LEN = 10;
+const int MAX_CHAT_MESSAGE_LEN = 20;
 typedef char byte;
 
 typedef std::shared_ptr<byte> shared_byte;
 
-struct PACKET_HEADER
+typedef unsigned int u32;
+typedef int s32;
+typedef unsigned short u16;
+typedef short s16;
+
+struct packet_header
 {
-	int nID;
-	int nSize;
+	packet_header()
+	:	id_(0),
+		content_size_(0)
+	{
+	}
+	size_t get_packet_size() const;
+
+	u16 id_;
+	u32 content_size_;
 };
 
 enum Packets
 {
-	REQ_IN = 1,
-	RES_IN = 2,
-	REQ_CHAT = 6,
+	REQUEST_LOGIN = 1,
+	REPLY_LOGIN = 2,
+	REQUEST_CHAT = 6,
 	NOTICE_CHAT = 7,
 };
+
+extern shared_byte build_packet(u32 id, u32 content_size);
 
 namespace boost
 {

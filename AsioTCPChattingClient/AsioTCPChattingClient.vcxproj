@@ -11,11 +11,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ChattingClient.cpp" />
-    <ClCompile Include="ClientMain.cpp" />
+    <ClCompile Include="chatting_client.cpp" />
+    <ClCompile Include="client_main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ChattingClient.h" />
+    <ClInclude Include="chatting_client.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BCA248D2-B23F-40BA-B0DE-510F10FEE51B}</ProjectGuid>

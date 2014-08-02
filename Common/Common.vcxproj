@@ -85,9 +85,12 @@
   <ItemGroup>
     <ClInclude Include="packet.pb.h" />
     <ClInclude Include="Protocol.h" />
+    <ClInclude Include="scoped_lock.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="packet.pb.cc" />
+    <ClCompile Include="protocol.cpp" />
+    <ClCompile Include="scoped_lock.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

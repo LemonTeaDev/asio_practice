@@ -21,10 +21,19 @@
     <ClInclude Include="packet.pb.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="scoped_lock.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="packet.pb.cc">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="scoped_lock.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="protocol.cpp">
+      <Filter>헤더 파일</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
