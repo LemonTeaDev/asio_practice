@@ -31,7 +31,7 @@ private:
 
 	std::array<byte, MAX_RECEIVE_BUFFER_LEN> receive_buffer_;
 
-	u32 packet_buffer_mark_;
+	uint32_t packet_buffer_mark_;
 	std::vector<byte> packet_buffer_;
 
 	std::mutex lock_;

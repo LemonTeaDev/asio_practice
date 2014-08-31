@@ -45,13 +45,13 @@ void chat_server::init(const int nMaxSessionCount)
 
 void chat_server::start()
 {
-	std::cout << "서버 시작......" << std::endl;
+	std::cout << "Initializing Server......" << std::endl;
 	post_accept();
 }
 
 void chat_server::close_session(const int session_id)
 {
-	std::cout << "클라이언트 접속 종료: 세션 ID: " << session_id << std::endl;
+	std::cout << "Client Connection Closed: Session ID: " << session_id << std::endl;
 	session_list_[session_id]->Socket().close();
 	session_queue_.push_back(session_id);
 	if (is_accepting_ == false)
@@ -153,7 +153,7 @@ void chat_server::handle_accept(
 {
 	if (!error)
 	{
-		std::cout << "클라이언트 접속 성공. SessionID: " << session->session_id() << std::endl;
+		std::cout << "Client Connection Accepted. SessionID: " << session->session_id() << std::endl;
 		
 		session->init();
 		session->post_receive();

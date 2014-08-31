@@ -3,6 +3,7 @@
 #include <iterator>
 #include <locale>
 #include <codecvt>
+#include <cassert>
 
 extern std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> code_cvt;
 
@@ -10,7 +11,9 @@ session::session(int session_id, boost::asio::io_service& io_service, chat_serve
 	: socket_(io_service)
 	, session_id_(session_id)
 	, server_(server)
+	, content_read_mode_(false)
 {
+	packet_buffer_.reserve(sizeof(packet_header));
 }
 
 session::~session()
@@ -101,6 +104,12 @@ void session::handle_write(
 	}
 }
 
+void session::clear_packet_buffer()
+{
+	packet_buffer_mark_ = 0;
+	packet_buffer_.clear();
+}
+
 void session::handle_receive(
 	const boost::system::error_code& error, 
 	size_t bytes_transferred)
@@ -134,17 +143,12 @@ void session::handle_receive(
 		//		[fill packet buffer(vector) with contents until content size]
 		//		end content read mode
 
-		if (packet_buffer_.size() - packet_buffer_mark_ <= bytes_transferred)
-		{
-			packet_buffer_.resize(bytes_transferred * 2);
-		}
 		std::copy_n(
 			receive_buffer_.data(),
 			bytes_transferred,
-			packet_buffer_.begin() + packet_buffer_mark_);
+			std::inserter(packet_buffer_, packet_buffer_.begin() + packet_buffer_mark_));
 
-		u32 packet_data_size = packet_buffer_mark_ + bytes_transferred;
-		u32 read_data_size = 0;
+		uint32_t packet_data_size = packet_buffer_mark_ + bytes_transferred;
 
 		while (packet_data_size > 0)
 		{
@@ -153,48 +157,39 @@ void session::handle_receive(
 				break;
 			}
 
-			auto header = reinterpret_cast<packet_header*>(&packet_buffer_[read_data_size]);
+			auto header = reinterpret_cast<packet_header*>(&packet_buffer_[0]);
+			if (!content_read_mode_)
+			{
+				boost::crc_32_type::value_type crc = header->calculate_crc();
+				if (crc != header->crc_)
+				{
+					clear_packet_buffer();
+					break;
+				}
 
-			// TODO: Check the packet id. 
-			// if the packet is a chat request but its length is over the limit,
-			// then it should not be processed
+				bool is_header_size_valid = false;
+				
 
+				// TODO: Check the packet id. 
+				// if the packet is a chat request but its length is over the limit,
+				// then it should not be processed
+
+				content_read_mode_ = true;
+				break;
+			}
+
+			
 
 			auto packet_size = header->get_packet_size();
 			if (packet_size <= packet_data_size)
 			{
-				server_.process_packet(session_id_, &packet_buffer_[read_data_size]);
-
-				packet_data_size -= packet_size;
-				read_data_size += packet_size;
-
-				packet_buffer_mark_ = 0;
+				server_.process_packet(session_id_, &packet_buffer_[0]);
+				clear_packet_buffer();
 			}
 			else
 			{
+				packet_buffer_mark_ += bytes_transferred;
 				break;
-			}
-		}
-
-		if (packet_data_size > 0)
-		{
-			std::vector<byte> temp_buffer;
-			if (packet_buffer_.size() > read_data_size + packet_data_size)
-			{
-				std::vector<byte> temp_buffer(
-					packet_buffer_.begin() + read_data_size,
-					packet_buffer_.begin() + read_data_size + packet_data_size + 1);
-
-				std::copy_n(
-					temp_buffer.begin(),
-					packet_data_size,
-					packet_buffer_.begin());
-
-				packet_buffer_mark_ = packet_data_size;
-			}
-			else
-			{
-				packet_buffer_mark_ += read_data_size;
 			}
 		}
 

@@ -5,6 +5,8 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <cstdint>
+#include <boost/crc.hpp>
 
 const unsigned short PORT_NUMBER = 31400;
 const int MAX_RECEIVE_BUFFER_LEN = 10;
@@ -13,22 +15,21 @@ typedef char byte;
 
 typedef std::shared_ptr<byte> shared_byte;
 
-typedef unsigned int u32;
-typedef int s32;
-typedef unsigned short u16;
-typedef short s16;
-
 struct packet_header
 {
 	packet_header()
 	:	id_(0),
-		content_size_(0)
+		content_size_(0),
+		crc_(0)
 	{
 	}
-	size_t get_packet_size() const;
 
-	u16 id_;
-	u32 content_size_;
+	size_t get_packet_size() const;
+	boost::crc_32_type::value_type&& calculate_crc() const;
+
+	uint16_t id_;
+	uint32_t content_size_;
+	boost::crc_32_type::value_type crc_;
 };
 
 enum Packets
@@ -39,7 +40,7 @@ enum Packets
 	NOTICE_CHAT = 7,
 };
 
-extern shared_byte build_packet(u32 id, u32 content_size);
+extern shared_byte build_packet(uint32_t id, uint32_t content_size);
 
 namespace boost
 {

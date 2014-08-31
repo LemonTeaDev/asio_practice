@@ -152,8 +152,8 @@ void ChatClient::handle_receive(const boost::system::error_code& error, size_t b
 			bytes_transferred,
 			packet_buffer_.begin() + packet_buffer_mark_);
 
-		u32 packet_data_size = packet_buffer_mark_ + bytes_transferred;
-		u32 read_data_size = 0;
+		uint32_t packet_data_size = packet_buffer_mark_ + bytes_transferred;
+		uint32_t read_data_size = 0;
 
 		while (packet_data_size > 0)
 		{

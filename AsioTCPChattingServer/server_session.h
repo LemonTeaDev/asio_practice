@@ -1,6 +1,7 @@
 #pragma once
 #include <deque>
 #include <boost/asio.hpp>
+#include <boost/crc.hpp>
 #include "../Common/Protocol.h"
 #include <string>
 
@@ -29,14 +30,18 @@ private:
 	void handle_receive(
 		const boost::system::error_code& error, size_t bytes_transferred);
 
-	u32 session_id_;
-	boost::asio::ip::tcp::socket socket_;
-	std::array<byte, MAX_RECEIVE_BUFFER_LEN> receive_buffer_;
+	void clear_packet_buffer();
 
-	u32 packet_buffer_mark_;
+	uint32_t session_id_;
+	boost::asio::ip::tcp::socket socket_;
+	std::array<byte, sizeof(packet_header)> receive_buffer_;
+
+	uint32_t packet_buffer_mark_;
 	std::vector<byte> packet_buffer_;
 
 	std::deque<shared_byte> send_data_queue_;
 	std::string name_;
+
+	bool content_read_mode_;
 	chat_server& server_;
 };
