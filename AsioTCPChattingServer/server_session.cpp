@@ -106,6 +106,7 @@ void session::handle_write(
 
 void session::clear_packet_buffer()
 {
+	content_read_mode_ = false;
 	packet_buffer_mark_ = 0;
 	packet_buffer_.clear();
 }
@@ -130,9 +131,6 @@ void session::handle_receive(
 	}
 	else
 	{
-		//	TODO 
-		//	change design:
-		//	add crc to header
 		//	read stream for sizeof(header) bytes
 		//	if !content read mode:
 		//		if crc is valid
@@ -154,6 +152,7 @@ void session::handle_receive(
 		{
 			if (packet_data_size < sizeof(packet_header))
 			{
+				packet_buffer_mark_ += bytes_transferred;
 				break;
 			}
 
@@ -167,24 +166,37 @@ void session::handle_receive(
 					break;
 				}
 
-				bool is_header_size_valid = false;
-				
-
-				// TODO: Check the packet id. 
+				// Check the packet id. 
 				// if the packet is a chat request but its length is over the limit,
 				// then it should not be processed
+				bool is_header_size_valid = false;
+				switch (header->id_)
+				{
+				case REQUEST_CHAT:
+					if (header->content_size_ <= MAX_CHAT_MESSAGE_LEN)
+					{
+						is_header_size_valid = true;
+					}
+					break;
+				default:
+					is_header_size_valid = true;
+				}
+			
+				if (!is_header_size_valid)
+				{
+					clear_packet_buffer();
+					break;
+				}
 
 				content_read_mode_ = true;
-				break;
 			}
-
-			
 
 			auto packet_size = header->get_packet_size();
 			if (packet_size <= packet_data_size)
 			{
 				server_.process_packet(session_id_, &packet_buffer_[0]);
 				clear_packet_buffer();
+				break;
 			}
 			else
 			{

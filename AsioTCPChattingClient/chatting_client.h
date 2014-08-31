@@ -24,6 +24,7 @@ private:
 	void handle_receive(const boost::system::error_code& error, size_t bytes_transferred);
 
 	void process_packet(byte* data);
+	void clear_packet_buffer();
 
 private:
 	boost::asio::io_service& io_service_;
@@ -38,4 +39,5 @@ private:
 	std::deque<shared_byte> send_data_queue_;
 
 	bool is_logged_in_;
+	bool content_read_mode_;
 };

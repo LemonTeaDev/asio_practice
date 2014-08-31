@@ -11,7 +11,10 @@ size_t packet_header::get_packet_size() const
 boost::crc_32_type::value_type&& packet_header::calculate_crc() const
 {
 	crc.process_bytes(&id_, sizeof(packet_header) - sizeof(crc_));
-	return crc.checksum();
+	boost::crc_32_type::value_type ret = crc.checksum();
+
+	crc.reset();
+	return std::forward<decltype(ret)>(ret);
 }
 
 shared_byte build_packet(uint32_t id, uint32_t content_size)
